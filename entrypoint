@@ -1,0 +1,4 @@
+#!/bin/sh
+
+echo "var IGISERVER = \"$IGISERVER\"" > /usr/local/apache2/htdocs/config.js
+httpd-foreground

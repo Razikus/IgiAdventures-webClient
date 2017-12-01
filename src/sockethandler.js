@@ -2,7 +2,7 @@ var webSocket;
 var console;
 function initSockets()
 {
-    webSocket = new WebSocket("ws://localhost:8080/IgiAdventures/igisocket");
+    webSocket = new WebSocket("ws://" + IGISERVER + "/IgiAdventures/igisocket");
     webSocket.onmessage = function(evt) { onMessage(evt) };
     webSocket.onopen = function(evt) { onOpen(evt) };
     webSocket.onclose = function(evt) { onClose(evt) };
