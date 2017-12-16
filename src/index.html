@@ -36,7 +36,9 @@
         </table>
     </div>
     <div id="console" class="console" title="Console">
-        Console: <span></span>
+	<div id="consoleContent" style="height:70%; width:100%; overflow-y: scroll;">
+	</div>
+	<input id="nickname" placeholder="Nickname" style="height:20%; width:10%"></input><input placeholder="Wiadomość" id="textToSend" style="height:20%; width:83%;"></input><button style="width: auto;" id="messageButton">Wyślij</button>
     </div>
 </div>
 <div id="dialog-form" title="Wyślij wynik!">
@@ -44,7 +46,7 @@
   <form onsubmit="return false;">
     <fieldset>
       Twój nick: 
-      <input type="text" name="name" id="nick" value="Anonim" class="text">
+      <input type="text" name="name" id="nick" class="text"></input>
     </fieldset>
   </form>
 </div>

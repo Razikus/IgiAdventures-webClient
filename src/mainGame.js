@@ -1,7 +1,6 @@
 tableInitialized = false;
 var recognizer = function(evt) {
     var message = "";
-    var span = $(console).find("span");
     if(evt.type == "message") {
         objectReceived = JSON.parse(evt.data);
         
@@ -20,7 +19,14 @@ var recognizer = function(evt) {
             else {
                 reloadTable(loadedDatas.args);
             }
-        }
+        } else if(code == 4) {
+	    message = objectReceived.args[1];
+	    sender = objectReceived.args[0];
+	    newP = document.createElement("p");
+            $("#consoleContent").prepend(newP)
+	    $(newP).text(sender + ": " + message);
+	    
+	}
     }
     else if(evt.type == "close") {
         message = "Websocket closed";
@@ -31,7 +37,6 @@ var recognizer = function(evt) {
     else {
         message = evt.type;
     }
-    $(span).text(message);
 }
 var gameCanvas = document.getElementById("game");
 var app = initApp(1024, 512, gameCanvas);
@@ -59,7 +64,7 @@ function loadMusics() {
         loadPixi();
     });
 }
-var igis = Math.floor(Math.random() * 100) + 50  ;
+var igis = Math.floor(Math.random() * 100) + 100  ;
 function loadPixi() {
     PIXI.loader
         .add("images/igi.png")
@@ -68,7 +73,6 @@ function loadPixi() {
 }
 function setup() {
     sendToSocket(new TopAction(50));
-    igis = Math.floor(Math.random() * 10) + 5  ;
     timenow = new Date().getTime();
     timeall = 0;
     timeavg = 0;
@@ -117,9 +121,10 @@ function gameLoop(delta) {
 function addRandomIgi(stage) {
     var newIgi = new PIXI.Sprite(PIXI.loader.resources["images/igi.png"].texture);
     scale = Math.random();
-    if(scale < 0.05 || scale > 0.15) {
-	    scale = 0.1;
+    while(scale < 0.07 || scale > 0.17) {
+	    scale = Math.random();
     }
+    newIgi.tint = Math.random() * 0xFF00FF;
     newIgi.scale.x *= scale;
     newIgi.scale.y *= scale;
     newIgi.anchor.set(0.5);
@@ -144,9 +149,10 @@ function onIgiClick(evt) {
     scoreText.text = "Score: " + timeavg + "ms";
 
     if(points == 0) {
+	$("#nick").val($("#nickname").val())
         winSound.play();
         soundtrack.stop();
-	    showScoreDialog();
+	showScoreDialog();
 
     } else {
         clickSound.rate((Math.random()*2) + 1);
@@ -162,6 +168,14 @@ function onRestart(evt) {
     setup();
 }
 function initDialog() {
+      $("#messageButton").click(function() {
+            sendMessage();
+      });
+      $("#textToSend").on("keyup", function(key) {
+	    if(key.keyCode == 13) {
+		    sendMessage();
+	    }
+      });
       dialog = $( "#dialog-form" ).dialog({
       autoOpen: false,
       height: 200,
@@ -205,11 +219,28 @@ function showScoreDialog() {
 
 function addScore() {
 	var nick = $("#nick").val().replace(/\s/g, "");
+	if(!nick) {
+	    nick = "Anonim"
+	}
+        $("#nickname").val(nick);	
 	var score = timeavg;
 	timeavg = 9999999;
     sendToSocket(new AddAction(nick, score));
 	$("#dialog-form").dialog("close");
     sendToSocket(new TopAction(50));
+}
+
+function sendMessage() {
+	var message = $("#textToSend").val();
+	if(!message) {
+		return;
+	}
+	$("#textToSend").val("");
+	var nick = $("#nickname").val().replace(/\s/g, "");
+	if(!nick) {
+	    nick = "Anonim"
+	}
+	sendToSocket(new MessageAction(nick, message));
 }
 
 
@@ -226,4 +257,10 @@ function AddAction(nickname, score) {
     this.nickname = nickname;
     this.score = score;
     this.actionName = "ADD";
+}
+
+function MessageAction(nickname, message) {
+    this.nickname = nickname;
+    this.message = message;
+    this.actionName = "MESSAGE";
 }
